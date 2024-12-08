@@ -20,8 +20,8 @@ public class HomePage {
         mainPanel = new JPanel();
         titleLabel = new JLabel("Inventory Management System", SwingConstants.CENTER);
         manageProductsButton = new JButton("Manage Products");
-        manageSuppliersButton = new JButton("Manage Orders");
-        viewReportsButton = new JButton("Manage Suppliers");
+        manageSuppliersButton = new JButton("Manage Suppliers");
+        viewReportsButton = new JButton("Manage Order Reports");
         exitButton = new JButton("Exit");
 
         // Configure JFrame
