@@ -11,6 +11,7 @@ public class ReportsPage {
     private JButton inventoryReportButton;
     private JButton orderReportButton;
     private JButton supplierReportButton;
+    private JButton backButton; // Back button
     private JTextArea reportArea;
 
     public ReportsPage() {
@@ -45,10 +46,12 @@ public class ReportsPage {
         inventoryReportButton = new JButton("Generate Inventory Report");
         orderReportButton = new JButton("Generate Order Report");
         supplierReportButton = new JButton("Generate Supplier Report");
+        backButton = new JButton("Back to Home"); // Back button
 
         buttonPanel.add(inventoryReportButton);
         buttonPanel.add(orderReportButton);
         buttonPanel.add(supplierReportButton);
+        buttonPanel.add(backButton); // Add Back button to the panel
 
         // Action Listeners for each report button
         inventoryReportButton.addActionListener(new ActionListener() {
@@ -69,6 +72,15 @@ public class ReportsPage {
             @Override
             public void actionPerformed(ActionEvent e) {
                 generateSupplierReport();
+            }
+        });
+
+        // Action Listener for Back button
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // Close the current frame
+                new HomePage(); // Navigate back to the HomePage
             }
         });
 
@@ -109,16 +121,20 @@ public class ReportsPage {
         report.append("Order Report\n\n");
 
         try (Connection connection = DatabaseConnection.getConnection()) {
-            String query = "SELECT OrderID, OrderDate, SupplierID, Status, TotalAmount FROM Orders";
+            // Updated query with the new columns
+            String query = "SELECT OrderID, OrderDate, product_id, Status, OrderQuantity, TotalAmount FROM Orders";
             try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
                 while (rs.next()) {
                     int orderId = rs.getInt("OrderID");
                     Date orderDate = rs.getDate("OrderDate");
-                    int supplierId = rs.getInt("SupplierID");
+                    int productId = rs.getInt("product_id");  // updated column name
                     String status = rs.getString("Status");
+                    int orderQuantity = rs.getInt("OrderQuantity");  // updated column name
                     double totalAmount = rs.getDouble("TotalAmount");
-                    report.append(String.format("Order ID: %d, Date: %s, Supplier ID: %d, Status: %s, Total Amount: %.2f\n",
-                            orderId, orderDate, supplierId, status, totalAmount));
+
+                    // Adjust the report format to include the new columns
+                    report.append(String.format("Order ID: %d, Date: %s, Product ID: %d, Status: %s, Quantity: %d, Total Amount: %.2f\n",
+                            orderId, orderDate, productId, status, orderQuantity, totalAmount));
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(frame, "Error generating report: " + e.getMessage(),
@@ -129,7 +145,7 @@ public class ReportsPage {
                     "Database Error", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Display report in text area
+        // Display the updated report in the text area
         reportArea.setText(report.toString());
     }
 
@@ -138,14 +154,14 @@ public class ReportsPage {
         report.append("Supplier Report\n\n");
 
         try (Connection connection = DatabaseConnection.getConnection()) {
-            String query = "SELECT SupplierID, Name, ProductSupply FROM Suppliers";
+            String query = "SELECT SupplierID, Name, ContactInfo FROM Suppliers";
             try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
                 while (rs.next()) {
                     int supplierId = rs.getInt("SupplierID");
                     String name = rs.getString("Name");
-                    String productSupply = rs.getString("ProductSupply");
-                    report.append(String.format("Supplier ID: %d, Name: %s, Product Supply: %s\n",
-                            supplierId, name, productSupply));
+                    String contactInfo = rs.getString("ContactInfo");
+                    report.append(String.format("Supplier ID: %d, Name: %s, Contact Info: %s\n",
+                            supplierId, name, contactInfo));
                 }
             } catch (SQLException e) {
                 JOptionPane.showMessageDialog(frame, "Error generating report: " + e.getMessage(),
