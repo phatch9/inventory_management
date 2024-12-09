@@ -1,7 +1,7 @@
 
 ### CS 157 -  INTRODUCTION TO DATABASE MANAGEMENT SYSTEM 
 ## FINAL PROJECT
-# Inventory Management
+# Inventory Management For Online Small Businesses
 
 <h3 align="left">Project Overview:</h3>
 Our project is focused on developing a platform tailored for small business owners, allowing them to effectively handle stock management, maintain supplier records, and keep track of orders seamlessly. The system will be implemented as a web application with a three-tier architecture, using JDBC to interact with a MySQL database.
