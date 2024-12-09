@@ -65,7 +65,7 @@ public class HomePage {
                 JOptionPane.showMessageDialog(frame, "Navigating to Manage Orders...", "Info", JOptionPane.INFORMATION_MESSAGE);
                 // Logic to open the Manage Orders screen goes here
                 frame.setVisible(false); // Hide the current frame
-                new ManageOrders();  // Open the ManageOrders screen
+                new OrderManager();  // Open the ManageOrders screen
             }
         });
 
@@ -73,7 +73,8 @@ public class HomePage {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(frame, "Navigating to Manage Suppliers...", "Info", JOptionPane.INFORMATION_MESSAGE);
-                // Logic to open supplier management screen goes here
+                frame.setVisible(false); // Hide the current frame
+                new ManageSuppliers();  // Open the ManageOrders screen
             }
         });
 
