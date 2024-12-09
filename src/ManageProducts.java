@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class ManageProducts {
 
@@ -30,7 +31,7 @@ public class ManageProducts {
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
         // Table for displaying products
-        String[] columnNames = {"Product ID", "Name", "Description", "Quantity"};
+        String[] columnNames = {"Product ID", "Name", "Description", "Quantity", "Supplier ID"};
         tableModel = new DefaultTableModel(columnNames, 0); // Empty table initially
         productTable = new JTable(tableModel);
 
@@ -52,126 +53,156 @@ public class ManageProducts {
         buttonPanel.add(deleteButton);
         buttonPanel.add(backButton);
 
-        // Add sample data to the table (for testing purposes)
-        tableModel.addRow(new Object[]{"1", "Laptop", "A high-performance laptop", "10"});
-        tableModel.addRow(new Object[]{"2", "Mouse", "Wireless mouse", "50"});
+        // Load data from the database
+        loadProductsFromDatabase();
 
         // Action Listeners
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addProduct();
-            }
-        });
-
-        updateButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateProduct();
-            }
-        });
-
-        deleteButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deleteProduct();
-            }
-        });
-
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.dispose(); // Close Manage Products window
-            }
-        });
+        addButton.addActionListener(e -> addProduct());
+        updateButton.addActionListener(e -> updateProduct());
+        deleteButton.addActionListener(e -> deleteProduct());
+        backButton.addActionListener(e -> navigateToHomePage());
 
         // Show frame
         frame.setVisible(true);
     }
 
+    private void loadProductsFromDatabase() {
+        try (ResultSet rs = DatabaseConnection.executeQuery("SELECT * FROM products")) {
+            while (rs.next()) {
+                tableModel.addRow(new Object[]{
+                        rs.getInt("product_id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getInt("quantity"),
+                        rs.getInt("supplier_id")
+                });
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(frame, "Error loading products: " + e.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void addProduct() {
-        // Open a dialog to input new product details
+        // Input dialog for product details
         JTextField idField = new JTextField();
         JTextField nameField = new JTextField();
         JTextField descriptionField = new JTextField();
         JTextField quantityField = new JTextField();
+        JTextField supplierIdField = new JTextField();
 
         Object[] message = {
                 "Product ID:", idField,
                 "Name:", nameField,
                 "Description:", descriptionField,
-                "Quantity:", quantityField
+                "Quantity:", quantityField,
+                "Supplier ID:", supplierIdField
         };
 
         int option = JOptionPane.showConfirmDialog(frame, message, "Add Product", JOptionPane.OK_CANCEL_OPTION);
 
         if (option == JOptionPane.OK_OPTION) {
-            String id = idField.getText();
-            String name = nameField.getText();
-            String description = descriptionField.getText();
-            String quantity = quantityField.getText();
+            try {
+                String query = "INSERT INTO products (product_id, name, description, quantity, supplier_id) VALUES (?, ?, ?, ?, ?)";
+                DatabaseConnection.executePreparedUpdate(query, Integer.parseInt(idField.getText()),
+                        nameField.getText(), descriptionField.getText(), Integer.parseInt(quantityField.getText()),
+                        Integer.parseInt(supplierIdField.getText()));
 
-            // Add the new product to the table
-            tableModel.addRow(new Object[]{id, name, description, quantity});
+                // Add to table model
+                tableModel.addRow(new Object[]{
+                        idField.getText(),
+                        nameField.getText(),
+                        descriptionField.getText(),
+                        quantityField.getText(),
+                        supplierIdField.getText()
+                });
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(frame, "Error adding product: " + e.getMessage(),
+                        "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     private void updateProduct() {
-        // Ensure a row is selected
         int selectedRow = productTable.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(frame, "Please select a product to update.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Get the current values of the selected product
+        // Get current product details
         String id = tableModel.getValueAt(selectedRow, 0).toString();
-        String name = tableModel.getValueAt(selectedRow, 1).toString();
-        String description = tableModel.getValueAt(selectedRow, 2).toString();
-        String quantity = tableModel.getValueAt(selectedRow, 3).toString();
-
-        // Open a dialog to update product details
-        JTextField idField = new JTextField(id);
-        idField.setEditable(false); // ID cannot be changed
-        JTextField nameField = new JTextField(name);
-        JTextField descriptionField = new JTextField(description);
-        JTextField quantityField = new JTextField(quantity);
+        JTextField nameField = new JTextField(tableModel.getValueAt(selectedRow, 1).toString());
+        JTextField descriptionField = new JTextField(tableModel.getValueAt(selectedRow, 2).toString());
+        JTextField quantityField = new JTextField(tableModel.getValueAt(selectedRow, 3).toString());
+        JTextField supplierIdField = new JTextField(tableModel.getValueAt(selectedRow, 4).toString());
 
         Object[] message = {
-                "Product ID:", idField,
                 "Name:", nameField,
                 "Description:", descriptionField,
-                "Quantity:", quantityField
+                "Quantity:", quantityField,
+                "Supplier ID:", supplierIdField
         };
 
         int option = JOptionPane.showConfirmDialog(frame, message, "Update Product", JOptionPane.OK_CANCEL_OPTION);
 
         if (option == JOptionPane.OK_OPTION) {
-            // Update the product details in the table
-            tableModel.setValueAt(nameField.getText(), selectedRow, 1);
-            tableModel.setValueAt(descriptionField.getText(), selectedRow, 2);
-            tableModel.setValueAt(quantityField.getText(), selectedRow, 3);
+            try {
+                String query = "UPDATE products SET name = ?, description = ?, quantity = ?, supplier_id = ? WHERE product_id = ?";
+                DatabaseConnection.executePreparedUpdate(query, nameField.getText(), descriptionField.getText(),
+                        Integer.parseInt(quantityField.getText()), Integer.parseInt(supplierIdField.getText()),
+                        Integer.parseInt(id));
+
+                // Update the table model
+                tableModel.setValueAt(nameField.getText(), selectedRow, 1);
+                tableModel.setValueAt(descriptionField.getText(), selectedRow, 2);
+                tableModel.setValueAt(quantityField.getText(), selectedRow, 3);
+                tableModel.setValueAt(supplierIdField.getText(), selectedRow, 4);
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(frame, "Error updating product: " + e.getMessage(),
+                        "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     private void deleteProduct() {
-        // Ensure a row is selected
         int selectedRow = productTable.getSelectedRow();
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(frame, "Please select a product to delete.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Confirm deletion
-        int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this product?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        String id = tableModel.getValueAt(selectedRow, 0).toString();
+
+        int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this product?",
+                "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
         if (confirm == JOptionPane.YES_OPTION) {
-            // Remove the selected product from the table
-            tableModel.removeRow(selectedRow);
+            try {
+                String query = "DELETE FROM products WHERE product_id = ?";
+                DatabaseConnection.executePreparedUpdate(query, Integer.parseInt(id));
+
+                // Remove from table model
+                tableModel.removeRow(selectedRow);
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(frame, "Error deleting product: " + e.getMessage(),
+                        "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
+    }
+
+    private void navigateToHomePage() {
+        // Close the current frame and open the HomePage frame
+        frame.dispose();
+        new HomePage();  // Make sure HomePage is implemented
     }
 
     public static void main(String[] args) {
         // Run the application
-        SwingUtilities.invokeLater(() -> new ManageProducts());
+        SwingUtilities.invokeLater(ManageProducts::new);
     }
 }
