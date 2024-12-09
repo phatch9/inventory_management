@@ -10,8 +10,9 @@ public class HomePage {
     private JPanel mainPanel;
     private JLabel titleLabel;
     private JButton manageProductsButton;
+    private JButton manageOrdersButton;
     private JButton manageSuppliersButton;
-    private JButton viewReportsButton;
+    private JButton reportsButton; // New button for Reports
     private JButton exitButton;
 
     public HomePage() {
@@ -20,8 +21,9 @@ public class HomePage {
         mainPanel = new JPanel();
         titleLabel = new JLabel("Inventory Management System", SwingConstants.CENTER);
         manageProductsButton = new JButton("Manage Products");
-        manageSuppliersButton = new JButton("Manage Orders");
-        viewReportsButton = new JButton("Manage Suppliers");
+        manageOrdersButton = new JButton("Manage Orders");
+        manageSuppliersButton = new JButton("Manage Suppliers");
+        reportsButton = new JButton("Reports"); // Initialize the Reports button
         exitButton = new JButton("Exit");
 
         // Configure JFrame
@@ -36,11 +38,12 @@ public class HomePage {
 
         // Create a button panel
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(4, 1, 10, 10));
+        buttonPanel.setLayout(new GridLayout(5, 1, 10, 10)); // Change to 5 rows to fit the new button
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
         buttonPanel.add(manageProductsButton);
+        buttonPanel.add(manageOrdersButton);
         buttonPanel.add(manageSuppliersButton);
-        buttonPanel.add(viewReportsButton);
+        buttonPanel.add(reportsButton); // Add the new Reports button
         buttonPanel.add(exitButton);
 
         mainPanel.add(buttonPanel, BorderLayout.CENTER);
@@ -56,6 +59,16 @@ public class HomePage {
             }
         });
 
+        manageOrdersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Navigating to Manage Orders...", "Info", JOptionPane.INFORMATION_MESSAGE);
+                // Logic to open the Manage Orders screen goes here
+                frame.setVisible(false); // Hide the current frame
+                new ManageOrders();  // Open the ManageOrders screen
+            }
+        });
+
         manageSuppliersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -64,11 +77,13 @@ public class HomePage {
             }
         });
 
-        viewReportsButton.addActionListener(new ActionListener() {
+        // Action Listener for the new Reports button
+        reportsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "Opening Reports...", "Info", JOptionPane.INFORMATION_MESSAGE);
-                // Logic to open reports screen goes here
+                JOptionPane.showMessageDialog(frame, "Opening Reports Page...", "Info", JOptionPane.INFORMATION_MESSAGE);
+                frame.setVisible(false);  // Hide the current frame
+                new ReportsPage();  // Open the ReportsPage
             }
         });
 
