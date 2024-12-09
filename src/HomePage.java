@@ -60,7 +60,9 @@ public class HomePage {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(frame, "Navigating to Manage Suppliers...", "Info", JOptionPane.INFORMATION_MESSAGE);
-                // Logic to open supplier management screen goes here
+                frame.setVisible(false);
+                new ManageSuppliers(); 
+                // Added logic to open supplier management screen --Phat
             }
         });
 
@@ -68,7 +70,10 @@ public class HomePage {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(frame, "Opening Reports...", "Info", JOptionPane.INFORMATION_MESSAGE);
+                frame.setVisible(false);
+                new ManageOrders();
                 // Logic to open reports screen goes here
+                // Added
             }
         });
 

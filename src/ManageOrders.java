@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -6,115 +5,181 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ManageOrders {
+
     private JFrame frame;
     private JPanel mainPanel;
     private JTable orderTable;
     private DefaultTableModel tableModel;
-    private JTextField txtOrderID, txtOrderDate, txtSupplierID, txtStatus, txtTotalAmount;
+    private JButton addButton, updateButton, deleteButton, backButton;
 
     public ManageOrders() {
-        // Frame settings
+        // Create the frame
         frame = new JFrame("Manage Orders");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(800, 600);
-        frame.setLayout(new BorderLayout());
+        frame.setLocationRelativeTo(null);
 
-        // Table Model
-        String[] columnNames = {"OrderID", "OrderDate", "SupplierID", "Status", "TotalAmount"};
-        tableModel = new DefaultTableModel(columnNames, 0);
+        // Main panel
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout(10, 10));
+        frame.add(mainPanel);
+
+        // Title label
+        JLabel titleLabel = new JLabel("Manage Orders", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        mainPanel.add(titleLabel, BorderLayout.NORTH);
+
+        // Table for displaying orders
+        String[] columnNames = {"Order ID", "Order Date", "Supplier ID", "Status", "Total Amount"};
+        tableModel = new DefaultTableModel(columnNames, 0); // Empty table initially
         orderTable = new JTable(tableModel);
-        JScrollPane tableScrollPane = new JScrollPane(orderTable);
 
-        // Form Panel
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(10, 2, 10, 10));
+        JScrollPane scrollPane = new JScrollPane(orderTable);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        formPanel.add(new JLabel("Order ID:"));
-        txtOrderID = new JTextField();
-        formPanel.add(txtOrderID);
-
-        formPanel.add(new JLabel("Order Date:"));
-        txtOrderDate = new JTextField();
-        formPanel.add(txtOrderDate);
-
-        formPanel.add(new JLabel("Supplier ID:"));
-        txtSupplierID = new JTextField();
-        formPanel.add(txtSupplierID);
-
-        formPanel.add(new JLabel("Status:"));
-        txtStatus = new JTextField();
-        formPanel.add(txtStatus);
-
-        formPanel.add(new JLabel("Total Amount:"));
-        txtTotalAmount = new JTextField();
-        formPanel.add(txtTotalAmount);
-
-        // Buttons Panel
+        // Button panel
         JPanel buttonPanel = new JPanel();
-        JButton btnAddOrder = new JButton("Add Order");
-        JButton btnEditOrder = new JButton("Edit Order");
-        JButton btnDeleteOrder = new JButton("Delete Order");
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        buttonPanel.add(btnAddOrder);
-        buttonPanel.add(btnEditOrder);
-        buttonPanel.add(btnDeleteOrder);
+        addButton = new JButton("Add Order");
+        updateButton = new JButton("Update Order");
+        deleteButton = new JButton("Delete Order");
+        backButton = new JButton("Back");
 
-        // Button Actions
-        btnAddOrder.addActionListener(e -> addOrder());
-        btnEditOrder.addActionListener(e -> editOrder());
-        btnDeleteOrder.addActionListener(e -> deleteOrder());
+        buttonPanel.add(addButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(deleteButton);
+        buttonPanel.add(backButton);
 
-        // Adding components to the frame
-        frame.add(tableScrollPane, BorderLayout.CENTER);
-        frame.add(formPanel, BorderLayout.EAST);
-        frame.add(buttonPanel, BorderLayout.SOUTH);
+        // Add sample data to the table (for testing purposes)
+        tableModel.addRow(new Object[]{"1", "2024-12-01", "001", "Pending", "150"});
+        tableModel.addRow(new Object[]{"2", "2024-12-05", "002", "Completed", "200"});
 
+        // Action Listeners
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addOrder();
+            }
+        });
+
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateOrder();
+            }
+        });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                deleteOrder();
+            }
+        });
+
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // Close Manage Orders window
+                
+            }
+        });
+
+        // Show frame
         frame.setVisible(true);
     }
 
     private void addOrder() {
-        String orderID = txtOrderID.getText();
-        String orderDate = txtOrderDate.getText();
-        String supplierID = txtSupplierID.getText();
-        String status = txtStatus.getText();
-        String totalAmount = txtTotalAmount.getText();
+        // Open a dialog to input new order details
+        JTextField idField = new JTextField();
+        JTextField dateField = new JTextField();
+        JTextField supplierField = new JTextField();
+        JTextField statusField = new JTextField();
+        JTextField totalField = new JTextField();
 
-        tableModel.addRow(new Object[]{orderID, orderDate, supplierID, status, totalAmount});
-        clearFields();
+        Object[] message = {
+                "Order ID:", idField,
+                "Order Date (YYYY-MM-DD):", dateField,
+                "Supplier ID:", supplierField,
+                "Status:", statusField,
+                "Total Amount:", totalField
+        };
+
+        int option = JOptionPane.showConfirmDialog(frame, message, "Add Order", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION) {
+            String id = idField.getText();
+            String date = dateField.getText();
+            String supplier = supplierField.getText();
+            String status = statusField.getText();
+            String total = totalField.getText();
+
+            // Add the new order to the table
+            tableModel.addRow(new Object[]{id, date, supplier, status, total});
+        }
     }
 
-    private void editOrder() {
+    private void updateOrder() {
+        // Ensure a row is selected
         int selectedRow = orderTable.getSelectedRow();
-        if (selectedRow >= 0) {
-            tableModel.setValueAt(txtOrderID.getText(), selectedRow, 0);
-            tableModel.setValueAt(txtOrderDate.getText(), selectedRow, 1);
-            tableModel.setValueAt(txtSupplierID.getText(), selectedRow, 2);
-            tableModel.setValueAt(txtStatus.getText(), selectedRow, 3);
-            tableModel.setValueAt(txtTotalAmount.getText(), selectedRow, 4);
-            clearFields();
-        } else {
-            JOptionPane.showMessageDialog(frame, "Please select an order to edit");
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Select an order to update.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Get the current values of the selected order
+        String id = tableModel.getValueAt(selectedRow, 0).toString();
+        String date = tableModel.getValueAt(selectedRow, 1).toString();
+        String supplier = tableModel.getValueAt(selectedRow, 2).toString();
+        String status = tableModel.getValueAt(selectedRow, 3).toString();
+        String total = tableModel.getValueAt(selectedRow, 4).toString();
+
+        // Open a dialog to update order details
+        JTextField idField = new JTextField(id);
+        idField.setEditable(false); // ID cannot be changed
+        JTextField dateField = new JTextField(date);
+        JTextField supplierField = new JTextField(supplier);
+        JTextField statusField = new JTextField(status);
+        JTextField totalField = new JTextField(total);
+
+        Object[] message = {
+                "Order ID:", idField,
+                "Order Date (YYYY-MM-DD):", dateField,
+                "Supplier ID:", supplierField,
+                "Status:", statusField,
+                "Total Amount:", totalField
+        };
+
+        int option = JOptionPane.showConfirmDialog(frame, message, "Update Order", JOptionPane.OK_CANCEL_OPTION);
+
+        if (option == JOptionPane.OK_OPTION) {
+            // Update the order details in the table
+            tableModel.setValueAt(dateField.getText(), selectedRow, 1);
+            tableModel.setValueAt(supplierField.getText(), selectedRow, 2);
+            tableModel.setValueAt(statusField.getText(), selectedRow, 3);
+            tableModel.setValueAt(totalField.getText(), selectedRow, 4);
         }
     }
 
     private void deleteOrder() {
+        // Ensure a row is selected
         int selectedRow = orderTable.getSelectedRow();
-        if (selectedRow >= 0) {
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Please select an order to delete.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Confirm deletion
+        int confirm = JOptionPane.showConfirmDialog(frame, "Are you sure you want to delete this order?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            // Remove the selected order from the table
             tableModel.removeRow(selectedRow);
-        } else {
-            JOptionPane.showMessageDialog(frame, "Please select an order to delete");
         }
     }
 
-    private void clearFields() {
-        txtOrderID.setText("");
-        txtOrderDate.setText("");
-        txtSupplierID.setText("");
-        txtStatus.setText("");
-        txtTotalAmount.setText("");
-    }
-
     public static void main(String[] args) {
-        new ManageOrders();
+        // Run the application
+        SwingUtilities.invokeLater(() -> new ManageOrders());
     }
 }
