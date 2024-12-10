@@ -51,7 +51,7 @@ public class ReportsPage {
         buttonPanel.add(inventoryReportButton);
         buttonPanel.add(orderReportButton);
         buttonPanel.add(supplierReportButton);
-        buttonPanel.add(backButton); // Add Back button to the panel
+        buttonPanel.add(backButton);
 
         // Action Listeners for each report button
         inventoryReportButton.addActionListener(new ActionListener() {

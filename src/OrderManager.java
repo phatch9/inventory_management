@@ -149,9 +149,8 @@ public class OrderManager {
 
     // Navigate to HomePage method
     private void navigateToHomePage() {
-        // Assuming HomePage is a separate class and can be instantiated here
         frame.setVisible(false); // Hide the current frame
-        new HomePage(); // Show the HomePage (or you could call setVisible(true) for an existing instance of HomePage)
+        new HomePage();
     }
 
     public static void main(String[] args) {
