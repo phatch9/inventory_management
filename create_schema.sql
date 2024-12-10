@@ -18,8 +18,3 @@ CREATE TABLE  'new_schema'. 'Suppliers';
 PRIMARY KEY (),
 UNIQUE INDEX
 
-CREATE TABLE  'new_schema'. 'Product';
- '',
- 
-PRIMARY KEY (),
-UNIQUE INDEX
