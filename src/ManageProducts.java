@@ -198,7 +198,7 @@ public class ManageProducts {
     private void navigateToHomePage() {
         // Close the current frame and open the HomePage frame
         frame.dispose();
-        new HomePage();  // Make sure HomePage is implemented
+        new HomePage();
     }
 
     public static void main(String[] args) {
